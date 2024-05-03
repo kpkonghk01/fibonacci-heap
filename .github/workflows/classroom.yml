@@ -1,0 +1,129 @@
+name: Autograding Tests
+'on':
+- push
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: prepare test case
+      id: prepare-test-case
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: prepare test case
+        setup-command: ''
+        command: "/bin/rm -rf ${PWD}/test && /bin/curl -o ${PWD}/test.tar.gz https://raw.githubusercontent.com/2023-DS/hw_test/main/hw2_test.tar.gz"
+        timeout: 1
+    - name: prepare test script
+      id: prepare-test-script
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: prepare test script
+        setup-command: ''
+        command: "/bin/curl -o ${PWD}/test.sh https://raw.githubusercontent.com/2023-DS/hw_test/main/test.sh
+          && /bin/chmod a+x ${PWD}/test.sh "
+        timeout: 1
+    - name: build
+      id: build
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: build
+        setup-command: ''
+        command: make clean && make -k
+        timeout: 1
+    - name: case1_1
+      id: case1_1
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case1_1
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p1 01"
+        timeout: 1
+        max-score: 35
+    - name: case2_1
+      id: case2_1
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_1
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 01"
+        timeout: 1
+        max-score: 5
+    - name: case2_2
+      id: case2_2
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_2
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 02"
+        timeout: 1
+        max-score: 5
+    - name: case2_3
+      id: case2_3
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_3
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 03"
+        timeout: 1
+        max-score: 5
+    - name: case2_4
+      id: case2_4
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_4
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 04"
+        timeout: 1
+        max-score: 5
+    - name: case2_5
+      id: case2_5
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_5
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 05"
+        timeout: 1
+        max-score: 5
+    - name: case2_6
+      id: case2_6
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_6
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 06"
+        timeout: 1
+        max-score: 5
+    - name: case2_7
+      id: case2_7
+      uses: education/autograding-command-grader@v1
+      with:
+        test-name: case2_7
+        setup-command: ''
+        command: "${PWD}/test.sh hw2 p2 07"
+        timeout: 1
+        max-score: 5
+    - name: Autograding Reporter
+      uses: education/autograding-grading-reporter@v1
+      env:
+        PREPARE-TEST-CASE_RESULTS: "${{steps.prepare-test-case.outputs.result}}"
+        PREPARE-TEST-SCRIPT_RESULTS: "${{steps.prepare-test-script.outputs.result}}"
+        BUILD_RESULTS: "${{steps.build.outputs.result}}"
+        CASE1_1_RESULTS: "${{steps.case1_1.outputs.result}}"
+        CASE2_1_RESULTS: "${{steps.case2_1.outputs.result}}"
+        CASE2_2_RESULTS: "${{steps.case2_2.outputs.result}}"
+        CASE2_3_RESULTS: "${{steps.case2_3.outputs.result}}"
+        CASE2_4_RESULTS: "${{steps.case2_4.outputs.result}}"
+        CASE2_5_RESULTS: "${{steps.case2_5.outputs.result}}"
+        CASE2_6_RESULTS: "${{steps.case2_6.outputs.result}}"
+        CASE2_7_RESULTS: "${{steps.case2_7.outputs.result}}"
+      with:
+        runners: prepare-test-case,prepare-test-script,build,case1_1,case2_1,case2_2,case2_3,case2_4,case2_5,case2_6,case2_7
